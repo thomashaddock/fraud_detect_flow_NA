@@ -54,7 +54,7 @@ class FileProcessingFlow(Flow[FileProcessingState]):
 
         df = pd.read_csv(full_path)
         self.state.file_columns = list(df.columns)
-        self.state.file_records = df.to_dict(orient="records")
+        self.state.file_records = df.where(df.notna(), None).to_dict(orient="records")
         print(f"    Loaded {len(self.state.file_records)} rows, {len(self.state.file_columns)} columns")
         print(f"    Columns: {self.state.file_columns}")
 

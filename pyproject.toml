@@ -14,7 +14,6 @@ dependencies = [
 kickoff = "fraud_detect_flow_session_5.main:kickoff"
 run_crew = "fraud_detect_flow_session_5.main:kickoff"
 plot = "fraud_detect_flow_session_5.main:plot"
-run_with_trigger = "fraud_detect_flow_session_5.main:run_with_trigger"
 
 [build-system]
 requires = ["hatchling"]
