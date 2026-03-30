@@ -1,5 +1,9 @@
 .env
 __pycache__/
+*.pyc
+.venv/
 lib/
+*.db
+output/
 .DS_Store
 .venv/
