@@ -10,6 +10,8 @@ from pydantic import BaseModel, Field
 
 from crewai import Agent, LLM
 from crewai.flow.flow import Flow, listen, start
+from crewai.flow.human_feedback import human_feedback, HumanFeedbackResult
+
 from crewai.flow.persistence import persist, SQLiteFlowPersistence
 
 from fraud_detect_flow_session_5.crews.anomaly_crew.anomaly_crew import AnomalyCrew
@@ -203,9 +205,49 @@ class FileProcessingFlow(Flow[FileProcessingState]):
         print(f"    Risk score: {self.state.anomaly_verdict.get('risk_score', 'N/A')}")
 
     @listen(run_anomaly_crew)
+    @human_feedback(
+        message="Review the anomaly detection results. Do you approve, reject, or want revisions?",
+        emit=["approved", "rejected", "needs_revision"],
+        llm="gpt-4o-mini",
+        default_outcome="approved",
+    )
+    def human_review_step(self):
+        """Present anomaly verdict for human review."""
+        print(f"\n[5/6] Human review step")
+        summary = (
+            f"Document: {self.state.doc_type}\n"
+            f"Risk Score: {self.state.anomaly_verdict.get('risk_score', 'N/A')}\n"
+            f"Recommendation: {self.state.anomaly_verdict.get('recommendation', 'UNKNOWN')}\n"
+            f"Anomalies: {json.dumps(self.state.anomaly_verdict.get('anomaly_details', []), indent=2)}"
+        )
+        print(summary)
+        return summary
+
+    @listen("approved")
+    def on_approved(self, result: HumanFeedbackResult):
+        """Human approved — proceed to final verdict."""
+        print(f"\n  Approved by reviewer. Feedback: {result.feedback}")
+        self.produce_verdict()
+
+    @listen("rejected")
+    def on_rejected(self, result: HumanFeedbackResult):
+        """Human rejected the results."""
+        print(f"\n  REJECTED by reviewer. Reason: {result.feedback}")
+        self.state.anomaly_verdict["recommendation"] = "REJECTED"
+        self.state.anomaly_verdict["reviewer_feedback"] = result.feedback
+        self.produce_verdict()
+
+    @listen("needs_revision")
+    def on_needs_revision(self, result: HumanFeedbackResult):
+        """Human requested revisions."""
+        print(f"\n  Revision requested. Feedback: {result.feedback}")
+        self.state.anomaly_verdict["recommendation"] = "MANUAL_REVIEW"
+        self.state.anomaly_verdict["reviewer_feedback"] = result.feedback
+        self.produce_verdict()
+
     def produce_verdict(self):
         """Assemble final output and write to file. Pure Python."""
-        print(f"\n[5/5] Producing final verdict")
+        print(f"\n[6/6] Producing final verdict")
 
         self.state.final_output = {
             "flow_id": self.state.id,
