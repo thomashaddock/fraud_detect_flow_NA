@@ -1,0 +1,62 @@
+analyze_anomalies:
+  description: >
+    Analyze the following batch of {doc_type} financial records for anomalies.
+
+    File Data:
+    {file_data}
+
+    Validation Results:
+    {validation_results}
+
+    For each anomaly found, identify:
+    - Which record(s) are affected (by row index or ID)
+    - What the anomaly is (missing data, suspicious pattern, threshold breach)
+    - How severe it is (low, medium, high, critical)
+
+    Consider: amount outliers, missing required fields, high-risk jurisdictions,
+    round-trip patterns, structuring, stale dates, and cross-record correlations.
+
+    Return your analysis as a JSON object with these fields:
+    - anomalies_detected (boolean)
+    - anomaly_count (integer)
+    - anomaly_details (list of objects with: record_index, description, severity)
+    - preliminary_risk_score (integer 0-100)
+    - summary (2-3 sentence overview)
+
+    IMPORTANT: Use the REAL data provided above. Do NOT fabricate values.
+  expected_output: >
+    A JSON object with anomalies_detected (boolean), anomaly_count (integer),
+    anomaly_details (list of objects), preliminary_risk_score (integer 0-100),
+    and summary (string).
+  agent: anomaly_analyst
+
+assess_risk:
+  description: >
+    Review the anomaly analyst's findings and produce the final risk assessment.
+
+    Original {doc_type} Data:
+    {file_data}
+
+    Validation Results:
+    {validation_results}
+
+    Check the following:
+    1. Are the flagged anomalies real and supported by the data?
+    2. Were any obvious risks missed (cross-reference validation errors)?
+    3. Is the risk score proportionate to the actual findings?
+    4. What is the correct recommendation: PASS, MANUAL_REVIEW, or FAIL?
+
+    Rules:
+    - Risk score 0-30 with no critical anomalies -> PASS
+    - Risk score 31-70 or any medium/high anomalies -> MANUAL_REVIEW
+    - Risk score 71+ or any critical anomalies -> FAIL
+
+    Return the final AnomalyVerdict as a JSON object.
+  expected_output: >
+    A JSON object with anomalies_detected (boolean), risk_score (integer 0-100),
+    anomaly_details (list of objects with record_index, description, severity),
+    recommendation (exactly "PASS", "MANUAL_REVIEW", or "FAIL"), and
+    explanation (string, 2-3 sentences).
+  agent: risk_assessor
+  context:
+    - analyze_anomalies

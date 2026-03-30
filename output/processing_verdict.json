@@ -1,0 +1,32 @@
+{
+  "flow_id": "039b006e-cdb1-4e7b-9914-433eb0581132",
+  "file_path": "check_deposit_batch_001.csv",
+  "doc_type": "CHECK",
+  "classification_confidence": 0.95,
+  "total_records": 6,
+  "validation_passed": true,
+  "error_count": 0,
+  "warning_count": 0,
+  "errors": [],
+  "warnings": [],
+  "anomalies_detected": true,
+  "risk_score": 65,
+  "anomaly_details": [
+    {
+      "record_index": "1",
+      "description": "High amount check ($12,500) for a bonus payment, which is unusually high compared to other checks in the batch.",
+      "severity": "high"
+    },
+    {
+      "record_index": "2",
+      "description": "Check dated 2026-03-15 is stale-dated as it is being deposited on 2026-03-25.",
+      "severity": "medium"
+    },
+    {
+      "record_index": "4",
+      "description": "Check amount of $2,500 is significantly lower than other checks, suggesting potential structuring to avoid reporting thresholds.",
+      "severity": "medium"
+    }
+  ],
+  "recommendation": "MANUAL_REVIEW"
+}

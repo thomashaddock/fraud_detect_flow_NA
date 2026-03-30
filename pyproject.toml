@@ -1,0 +1,24 @@
+[project]
+name = "fraud_detect_flow_session_5"
+version = "0.1.0"
+description = "Financial Document Processing Flow - CrewAI Training Session 5"
+authors = [{ name = "Tom Haddock", email = "tom@crewai.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[tools]==1.11.1",
+    "pandas",
+    "python-dotenv",
+]
+
+[project.scripts]
+kickoff = "fraud_detect_flow_session_5.main:kickoff"
+run_crew = "fraud_detect_flow_session_5.main:kickoff"
+plot = "fraud_detect_flow_session_5.main:plot"
+run_with_trigger = "fraud_detect_flow_session_5.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "flow"
